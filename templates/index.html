@@ -1,0 +1,144 @@
+<!--<!doctype html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>IoT </title>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Predicted Temprature and Humidity Data</h1>-->
+<!--    <div style="width: 300px; height: 300px">-->
+<!--    <canvas id="chart" width="400px" height="400px"></canvas></div>-->
+<!--    <script>-->
+<!--        var ctx = document.getElementById('chart').getContext('2d');-->
+<!--        var chartData;-->
+
+<!--        // retrieve the chart data from the server-->
+<!--        fetch('/chart_data')-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                chartData = data;-->
+<!--                createChart();-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error(error);-->
+<!--            });-->
+
+<!--        function createChart() {-->
+<!--            new Chart(ctx, {-->
+<!--                type: 'line',-->
+<!--                data: chartData,-->
+<!--                options: {-->
+<!--                    responsive: true,-->
+<!--                    scales: {-->
+<!--                        xAxes: [{-->
+<!--                            type: 'time',-->
+<!--                            time: {-->
+<!--                                displayFormats: {-->
+<!--                                    minute: 'h:mm a'-->
+<!--                                }-->
+<!--                            }-->
+<!--                        }]-->
+<!--                    }-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
+<!--    </script>-->
+<!--</body>-->
+<!doctype html>
+<html>
+<head>
+    <title>IoT Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #d3d3d3;
+
+        }
+        .header {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 36px;
+            text-align: center;
+        }
+        .container1 {
+        display: flex;
+        justify-content: center;
+        }
+        .container2 {
+            margin:30px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            text-align: center;
+
+        }
+        .chart-container {
+            width: 800px;
+            height: 400px;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>IoT Dashboard</h1>
+    </div>
+    <div class = "container1">
+    <div class="container2">
+        <h2>Predicted Temperature and Humidity Data</h2>
+        <p>This chart shows the predicted temperature and humidity data within 24 hours at a 4-hour interval..</p>
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+    </div>
+    <script>
+        var ctx = document.getElementById('chart').getContext('2d');
+        var chartData;
+
+        // retrieve the chart data from the server
+        fetch('/chart_data')
+            .then(response => response.json())
+            .then(data => {
+                chartData = data;
+                createChart();
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        function createChart() {
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    minute: 'h:mm a'
+                                }
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
