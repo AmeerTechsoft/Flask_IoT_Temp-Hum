@@ -53,6 +53,8 @@ import sqlite3
 import pandas as pd
 import json
 from flask import Flask, render_template
+import requests
+
 
 app = Flask(__name__)
 
@@ -67,6 +69,17 @@ c.execute('''CREATE TABLE IF NOT EXISTS predicted_data
 def index():
     return render_template('index.html')
 
+
+@app.route('/thingspeak_feed')
+def thingspeak_feed():
+    channel_id = '2039086'
+    api_key = 'LXOTOE6HKVWNHZ63'
+    url = f'https://api.thingspeak.com/channels/{channel_id}/feeds/last.json?api_key={api_key}'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+
 @app.route('/chart_data')
 def chart_data():
     # Load the predicted data from the CSV file
@@ -79,6 +92,13 @@ def chart_data():
     # extract datetime from index
     datetime_index = temp_data.index
     datetime_labels = datetime_index.strftime('%Y-%m-%d %H:%M:%S').tolist()
+    with sqlite3.connect('predicted_data.db') as conn:
+        for i, row in prediction.iterrows():
+            conn.execute("INSERT INTO predicted_data (datetime, temperature, humidity) VALUES (?, ?, ?)",
+                             (i.to_pydatetime(), row['field1'], row['field2']))
+        conn.commit()
+        print("Data inserted successfully.")
+
 
     # create a dictionary with the chart data
     chart_data = {
@@ -100,13 +120,6 @@ def chart_data():
 
     # convert the chart data to JSON
     chart_data_json = json.dumps(chart_data)
-
-    # save the chart data to the database
-    with sqlite3.connect('predicted_data.db') as conn:
-        for i, row in prediction.iterrows():
-            conn.execute("INSERT INTO predicted_data (datetime, temperature, humidity) VALUES (?, ?, ?)",
-                         (i.to_pydatetime(), row['field1'], row['field2']))
-        conn.commit()
 
     # return the chart data as JSON
     return chart_data_json

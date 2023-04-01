@@ -90,6 +90,15 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
         }
+        .chart-container2 {
+            width: 500px;
+            height: 300px;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -104,7 +113,86 @@
             <canvas id="chart"></canvas>
         </div>
     </div>
+</div>
+    <div class="container1">
+                 <div class="container2">
+    <h2>Live Temperature Data</h2>
+    <p>This chart shows the latest temperature from the Thingspeak channel.</p>
+    <div class="chart-container2" style="display: flex; justify-conte">
+        <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2039086/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Temperature+%28%C2%B0C%29&type=line"></iframe>
     </div>
+     </div>
+         <div class="container2">
+    <h2>Live Humidity Data</h2>
+    <p>This chart shows the latest humidity data from the Thingspeak channel.</p>
+    <div class="chart-container2" style="display: flex; justify-conte">
+        <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2039086/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Humidity+%28%25%29&type=line"></iframe>
+    </div>
+    </div>
+    </div>
+
+
+<!-- JavaScript code -->
+<script>
+    var ctx = document.getElementById('live-chart').getContext('2d');
+    var chartData = {
+        labels: [],
+        datasets: [{
+            label: 'Temperature',
+            borderColor: 'red',
+            data: []
+        }, {
+            label: 'Humidity',
+            borderColor: 'blue',
+            data: []
+        }]
+    };
+
+    var liveChart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        displayFormats: {
+                            minute: 'h:mm a'
+                        }
+                    }
+                }]
+            }
+        }
+    });
+
+    function updateLiveChart() {
+        // retrieve the data from the ThingSpeak channel using the API
+        fetch('https://api.thingspeak.com/channels/2039086/feeds.json?results=1000')
+            .then(response => response.json())
+            .then(data => {
+                // extract the temperature and humidity values from the data
+                var temps = data.feeds.map(feed => feed.field1);
+                var humids = data.feeds.map(feed => feed.field2);
+
+                // add the values to the chart data
+                chartData.labels = data.feeds.map(feed => new Date(feed.created_at));
+                chartData.datasets[0].data = temps;
+                chartData.datasets[1].data = humids;
+
+                // update the chart
+                liveChart.update();
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    // update the chart every 5 seconds
+    setInterval(updateLiveChart, 5000);
+</script>
+
+
     <script>
         var ctx = document.getElementById('chart').getContext('2d');
         var chartData;
